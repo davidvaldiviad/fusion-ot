@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audio signal interpolation using optimal transportation of spectrograms</title>
+  <!-- Link to external CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- Page Title -->
+  <h1>Enhancing time-frequency resolution via optimal transport fusion of spectrograms</h1>
+  <h2 style="text-align:center;">David Valdivia<sup>1</sup> &emsp; Elsa Cazelles<sup>1,2</sup> &emsp; Cédric Févotte<sup>1,2</sup> </h2>
+  <h3 style="text-align:center;"><sup>1</sup>IRIT, Université de Toulouse &emsp;&emsp;&emsp; <sup>2</sup>CNRS</h3>
+  <p class="subtitle">Non-stationary time signals have time-varying spectral properties that require tools such as the short-time Fourier transform to be properly understood.  To compute the STFT, a signal of interest is segmented and multiplied with a sliding analysis window whose duration is fixed. While a larger window provides a better frequency resolution and a shorter one provides better temporal resolution, there is a limit to how well the STFT can properly locate energy in both dimensions. In this paper, we propose an optimal transport (OT) based method to overcome this problem by fusing the resolution of two input spectrograms.</p>
+
+  <p>In this website we share the tool we built to compute super-resolution spectrograms on audio signals. You can use one of the recordings we propose, use your microphone or upload a file you have.</p>
+
+  <p>The code is available on our <a href="https://github.com/davidvaldiviad/fusion-ot">github page</a> </p>
+  <p><b>How to use</b>: ...</p>
+  
+      <div class="section">
+        <audio id="exp1-source-audio" controls>
+          <source src="" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
+        <img id="signal-waveform" src="">
+      </div>
+</div>
+
+</body>
+</html>

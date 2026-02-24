@@ -100,8 +100,3 @@ x = uot_sparse_barycenter(x1.T.flatten(),
                           verbose=False)
 
 x = x.reshape(N2, M1).T
-
-import matplotlib.pyplot as plt
-
-plt.imshow(x)
-plt.show()

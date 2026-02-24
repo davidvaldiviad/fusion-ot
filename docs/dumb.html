@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paper Demo</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Title</h1>
+  <h2 style="text-align:center;">Author</h2>
+  <h3 style="text-align:center;">Affiliation</h3>
+
+  <p class="subtitle">Abstract</p>
+  <p>Website description.</p>
+  <p>The code is available on our <a href="page">github page</a></p>
+  <p><b>How to use</b>: ...</p>
+
+  <div class="section">
+    <div class="player">
+
+      <div class="player-top">
+        <button class="demo-btn" id="library-btn" type="button" aria-label="Library">
+          <svg class="demo-dots" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="6" cy="12" r="1.8"></circle>
+            <circle cx="12" cy="12" r="1.8"></circle>
+            <circle cx="18" cy="12" r="1.8"></circle>
+          </svg>
+          <span>Library</span>
+        </button>
+
+        <button class="icon-btn" id="mic-btn" type="button" aria-label="Record">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"></path>
+          </svg>
+        </button>
+
+        <button class="icon-btn" id="upload-btn" type="button" aria-label="Upload">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Dropdown (examples only for now) -->
+      <div class="library-menu" id="library-menu" aria-hidden="true">
+        <div class="library-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 4a6 6 0 1 0 3.87 10.6l4.77 4.77 1.41-1.41-4.77-4.77A6 6 0 0 0 10 4zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"></path>
+          </svg>
+          <input id="library-search" type="text" placeholder="Search" autocomplete="off" />
+        </div>
+
+        <div class="library-list" id="library-list" role="listbox">
+          <button class="library-item" type="button" data-src="../example_sounds/bass-notes.wav">Bass guitar</button>
+          <button class="library-item" type="button" data-src="../example_sounds/ring-necked-dove.wav">Bird</button>
+          <button class="library-item" type="button" data-src="../example_sounds/woman-speech.wav">Speech</button>
+        </div>
+      </div>
+
+      <div class="player-bar">
+        <button id="play-btn" class="play-btn" type="button" aria-label="Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14l12-7L8 5z"></path>
+          </svg>
+        </button>
+
+        <div class="progress" id="progress" role="slider" aria-label="Seek"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="sr-row">
+        <div class="sr-pill">
+          <span class="sr-label">Sample rate:</span>
+          <input id="sr-input" class="sr-input" type="number" inputmode="numeric" min="1" step="1" value="16000" />
+          <span class="sr-unit">Hz</span>
+        </div>
+      </div>
+
+      <div class="waveform-box is-hidden" id="waveform-box">
+        <canvas id="waveform-canvas"></canvas>
+      </div>
+
+      <!-- Spectrogram controls + image -->
+      <div class="spec-wrap is-hidden" id="spec-wrap">
+        <div class="spec-controls" id="spec-controls">
+          <div class="spec-row">
+            <div class="spec-label">Window</div>
+            <div class="spec-field">
+              <input id="win-samp" class="spec-input" type="number" min="1" step="1" value="512" />
+              <span class="spec-unit">samples</span>
+            </div>
+            <div class="spec-field">
+              <input id="win-sec" class="spec-input" type="number" min="0" step="0.0001" value="0.064" />
+              <span class="spec-unit">seconds</span>
+            </div>
+          </div>
+
+          <div class="spec-row">
+            <div class="spec-label">Hop size</div>
+            <div class="spec-field">
+              <input id="hop-samp" class="spec-input" type="number" min="1" step="1" value="256" />
+              <span class="spec-unit">samples</span>
+            </div>
+            <div class="spec-field">
+              <input id="hop-sec" class="spec-input" type="number" min="0" step="0.0001" value="0.032" />
+              <span class="spec-unit">seconds</span>
+            </div>
+            <div class="spec-field">
+              <input id="hop-ov" class="spec-input" type="number" min="0" max="99.9" step="0.1" value="50" />
+              <span class="spec-unit">% overlap</span>
+            </div>
+          </div>
+
+          <div class="spec-row">
+            <div class="spec-label">NFFT</div>
+            <div class="spec-field">
+              <input id="nfft-samp" class="spec-input" type="number" min="1" step="1" value="512" />
+              <span class="spec-unit">samples</span>
+            </div>
+            <label class="spec-checkbox">
+              <input id="nfft-same" type="checkbox" />
+              <span>Same as window size</span>
+            </label>
+
+            <div class="spec-actions">
+              <button id="spec-apply" class="spec-btn" type="button">Enter</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec-summary" id="spec-summary">Window: 512 | Hop size: 256 (50%) | NFFT: 512</div>
+
+        <div class="spec-box is-hidden" id="spec-box">
+          <img id="spec-img" alt="Spectrogram" />
+        </div>
+      </div>
+
+      <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+
+      <input id="file-input" type="file" accept="audio/*" hidden />
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
