@@ -90,57 +90,176 @@
 
       <!-- Spectrogram controls + image -->
       <div class="spec-wrap is-hidden" id="spec-wrap">
-        <div class="spec-controls" id="spec-controls">
-          <div class="spec-row">
-            <div class="spec-label">Window</div>
-            <div class="spec-field">
-              <input id="win-samp" class="spec-input" type="number" min="1" step="1" value="512" />
-              <span class="spec-unit">samples</span>
+        <div class="spec-grid-wrap">
+
+        <!-- Card 1 -->
+        <div class="spec-card" data-spec-index="1">
+          <div class="spec-controls">
+            <div class="spec-row">
+              <div class="spec-label">Window</div>
+              <div class="spec-field">
+                <input id="win-samp-1" class="spec-input" type="number" min="1" step="1" value="512" />
+                <span class="spec-unit">samples</span>
+              </div>
+              <div class="spec-field">
+                <input id="win-sec-1" class="spec-input" type="number" min="0" step="0.1" value="64" />
+                <span class="spec-unit">ms</span>
+              </div>
             </div>
-            <div class="spec-field">
-              <input id="win-sec" class="spec-input" type="number" min="0" step="0.0001" value="0.064" />
-              <span class="spec-unit">seconds</span>
+      
+            <div class="spec-row">
+              <div class="spec-label">Hop size</div>
+              <div class="spec-field">
+                <input id="hop-samp-1" class="spec-input" type="number" min="1" step="1" value="256" />
+                <span class="spec-unit">samples</span>
+              </div>
+              <div class="spec-field">
+                <input id="hop-sec-1" class="spec-input" type="number" min="0" step="0.1" value="32" />
+                <span class="spec-unit">ms</span>
+              </div>
+              <div class="spec-field">
+                <input id="hop-ov-1" class="spec-input" type="number" min="0" max="99.9" step="0.1" value="50" />
+                <span class="spec-unit">% overlap</span>
+              </div>
+            </div>
+      
+            <div class="spec-row">
+              <div class="spec-label">NFFT</div>
+              <div class="spec-field">
+                <input id="nfft-samp-1" class="spec-input" type="number" min="1" step="1" value="512" />
+                <span class="spec-unit">samples</span>
+              </div>
+      
+              <label class="spec-checkbox">
+                <input id="nfft-same-1" type="checkbox" />
+                <span>Same as window size</span>
+              </label>
+      
+              <div class="spec-actions">
+                <button id="spec-apply-1" class="spec-btn" type="button">Enter</button>
+              </div>
             </div>
           </div>
-
-          <div class="spec-row">
-            <div class="spec-label">Hop size</div>
-            <div class="spec-field">
-              <input id="hop-samp" class="spec-input" type="number" min="1" step="1" value="256" />
-              <span class="spec-unit">samples</span>
-            </div>
-            <div class="spec-field">
-              <input id="hop-sec" class="spec-input" type="number" min="0" step="0.0001" value="0.032" />
-              <span class="spec-unit">seconds</span>
-            </div>
-            <div class="spec-field">
-              <input id="hop-ov" class="spec-input" type="number" min="0" max="99.9" step="0.1" value="50" />
-              <span class="spec-unit">% overlap</span>
-            </div>
-          </div>
-
-          <div class="spec-row">
-            <div class="spec-label">NFFT</div>
-            <div class="spec-field">
-              <input id="nfft-samp" class="spec-input" type="number" min="1" step="1" value="512" />
-              <span class="spec-unit">samples</span>
-            </div>
-            <label class="spec-checkbox">
-              <input id="nfft-same" type="checkbox" />
-              <span>Same as window size</span>
-            </label>
-
-            <div class="spec-actions">
-              <button id="spec-apply" class="spec-btn" type="button">Enter</button>
-            </div>
+      
+          <div class="spec-summary" id="spec-summary-1">Window: 512 | Hop size: 256 (50%) | NFFT: 512</div>
+      
+          <div class="spec-box is-hidden" id="spec-box-1">
+            <img id="spec-img-1" alt="Spectrogram 1" />
           </div>
         </div>
-
-        <div class="spec-summary" id="spec-summary">Window: 512 | Hop size: 256 (50%) | NFFT: 512</div>
-
-        <div class="spec-box is-hidden" id="spec-box">
-          <img id="spec-img" alt="Spectrogram" />
+      
+        <!-- Card 2 -->
+        <div class="spec-card" data-spec-index="2">
+          <div class="spec-controls">
+            <div class="spec-row">
+              <div class="spec-label">Window</div>
+              <div class="spec-field">
+                <input id="win-samp-2" class="spec-input" type="number" min="1" step="1" value="1024" />
+                <span class="spec-unit">samples</span>
+              </div>
+              <div class="spec-field">
+                <input id="win-sec-2" class="spec-input" type="number" min="0" step="0.1" value="128" />
+                <span class="spec-unit">ms</span>
+              </div>
+            </div>
+      
+            <div class="spec-row">
+              <div class="spec-label">Hop size</div>
+              <div class="spec-field">
+                <input id="hop-samp-2" class="spec-input" type="number" min="1" step="1" value="256" />
+                <span class="spec-unit">samples</span>
+              </div>
+              <div class="spec-field">
+                <input id="hop-sec-2" class="spec-input" type="number" min="0" step="0.1" value="32" />
+                <span class="spec-unit">ms</span>
+              </div>
+              <div class="spec-field">
+                <input id="hop-ov-2" class="spec-input" type="number" min="0" max="99.9" step="0.1" value="75" />
+                <span class="spec-unit">% overlap</span>
+              </div>
+            </div>
+      
+            <div class="spec-row">
+              <div class="spec-label">NFFT</div>
+              <div class="spec-field">
+                <input id="nfft-samp-2" class="spec-input" type="number" min="1" step="1" value="1024" />
+                <span class="spec-unit">samples</span>
+              </div>
+      
+              <label class="spec-checkbox">
+                <input id="nfft-same-2" type="checkbox" checked />
+                <span>Same as window size</span>
+              </label>
+      
+              <div class="spec-actions">
+                <button id="spec-apply-2" class="spec-btn" type="button">Enter</button>
+              </div>
+            </div>
+          </div>
+      
+          <div class="spec-summary" id="spec-summary-2">Window: 1024 | Hop size: 256 (75%) | NFFT: 1024</div>
+      
+          <div class="spec-box is-hidden" id="spec-box-2">
+            <img id="spec-img-2" alt="Spectrogram 2" />
+          </div>
         </div>
+      
+        <!-- Card 3 -->
+        <div class="spec-card" data-spec-index="3">
+          <div class="spec-controls">
+            <div class="spec-row">
+              <div class="spec-label">Window</div>
+              <div class="spec-field">
+                <input id="win-samp-3" class="spec-input" type="number" min="1" step="1" value="256" />
+                <span class="spec-unit">samples</span>
+              </div>
+              <div class="spec-field">
+                <input id="win-sec-3" class="spec-input" type="number" min="0" step="0.1" value="32" />
+                <span class="spec-unit">ms</span>
+              </div>
+            </div>
+      
+            <div class="spec-row">
+              <div class="spec-label">Hop size</div>
+              <div class="spec-field">
+                <input id="hop-samp-3" class="spec-input" type="number" min="1" step="1" value="128" />
+                <span class="spec-unit">samples</span>
+              </div>
+              <div class="spec-field">
+                <input id="hop-sec-3" class="spec-input" type="number" min="0" step="0.1" value="16" />
+                <span class="spec-unit">ms</span>
+              </div>
+              <div class="spec-field">
+                <input id="hop-ov-3" class="spec-input" type="number" min="0" max="99.9" step="0.1" value="50" />
+                <span class="spec-unit">% overlap</span>
+              </div>
+            </div>
+      
+            <div class="spec-row">
+              <div class="spec-label">NFFT</div>
+              <div class="spec-field">
+                <input id="nfft-samp-3" class="spec-input" type="number" min="1" step="1" value="256" />
+                <span class="spec-unit">samples</span>
+              </div>
+      
+              <label class="spec-checkbox">
+                <input id="nfft-same-3" type="checkbox" checked />
+                <span>Same as window size</span>
+              </label>
+      
+              <div class="spec-actions">
+                <button id="spec-apply-3" class="spec-btn" type="button">Enter</button>
+              </div>
+            </div>
+          </div>
+      
+          <div class="spec-summary" id="spec-summary-3">Window: 256 | Hop size: 128 (50%) | NFFT: 256</div>
+      
+          <div class="spec-box is-hidden" id="spec-box-3">
+            <img id="spec-img-3" alt="Spectrogram 3" />
+          </div>
+        </div>
+      
       </div>
 
       <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>

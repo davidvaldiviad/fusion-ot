@@ -22,7 +22,7 @@ h1{ text-align: center; margin-bottom: 1em; }
 /* ---- Player ---- */
 .player{
   display: inline-block;
-  width: min(720px, 95vw);
+  width: min(1200px, 95vw);
   position: relative;
 }
 
@@ -276,53 +276,61 @@ h1{ text-align: center; margin-bottom: 1em; }
 /* ---- Spectrogram ---- */
 .spec-wrap{
   margin-top: 14px;
+
+  /* Make STFT area wider than waveform/player bar */
+  width: calc(100% + 120px);
+  margin-left: -60px;
+  margin-right: -60px;
 }
+
 .spec-wrap.is-hidden{ display: none; }
 
 .spec-controls{
   border: 1px solid rgba(15, 23, 42, 0.14);
   background: rgba(255,255,255,0.9);
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 10px 12px;
 }
 
 .spec-row{
   display: grid;
-  grid-template-columns: 90px 1fr 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 80px 1fr 1fr 1fr;
+  gap: 8px;
   align-items: center;
 }
-.spec-row + .spec-row{ margin-top: 10px; }
+.spec-row + .spec-row{ margin-top: 8px; }
 
 .spec-label{
   text-align: left;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.9;
 }
 
 .spec-field{
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-start;
+  min-width: 0;
 }
 
 .spec-input{
-  width: 110px;
+  width: 88px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: rgba(255,255,255,0.9);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: 9px;
+  padding: 6px 8px;
   outline: none;
   font: inherit;
 }
+
 .spec-input:focus{
   border-color: rgba(59, 130, 246, 0.45);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
 }
 .spec-unit{
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.75;
   white-space: nowrap;
 }
@@ -330,15 +338,15 @@ h1{ text-align: center; margin-bottom: 1em; }
 .spec-checkbox{
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-start;
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.9;
   user-select: none;
 }
 .spec-checkbox input{
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .spec-actions{
@@ -346,9 +354,9 @@ h1{ text-align: center; margin-bottom: 1em; }
   justify-content: flex-end;
 }
 .spec-btn{
-  height: 38px;
-  padding: 0 14px;
-  border-radius: 12px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
   border: 1px solid rgba(15, 23, 42, 0.14);
   background: rgba(15, 23, 42, 0.04);
   cursor: pointer;
@@ -359,17 +367,26 @@ h1{ text-align: center; margin-bottom: 1em; }
 .spec-btn:active{ transform: scale(0.98); }
 
 .spec-summary{
-  margin-top: 10px;
+  margin-top: 8px;
   font-weight: 600;
+  font-size: 12px;
   opacity: 0.9;
 }
 
-.spec-box{
+.spec-grid{
   margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.spec-grid.is-hidden{ display: none; }
+
+.spec-box{
+  margin-top: 0px;
   border: 1px solid rgba(15, 23, 42, 0.14);
   background: rgba(255,255,255,0.9);
-  padding: 14px;
-  border-radius: 16px;
+  padding: 10px;
+  border-radius: 14px;
   overflow: hidden;
 }
 .spec-box.is-hidden{ display: none; }
@@ -380,10 +397,52 @@ h1{ text-align: center; margin-bottom: 1em; }
   border-radius: 12px;
 }
 
+.spec-grid-wrap{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+  align-items: start;
+}
+
+.spec-card{
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(255,255,255,0.7);
+}
+
+.spec-card .spec-box{
+  margin-top: 10px;
+}
+
+.spec-card:nth-child(3){
+  grid-column: 1 / -1;
+  width: min(100%, calc(50% - 8px));
+  justify-self: center;
+}
 /* small screens: stack fields */
 @media (max-width: 760px){
   .spec-row{
     grid-template-columns: 90px 1fr;
   }
   .spec-actions{ justify-content: flex-start; }
+  .spec-grid{
+    grid-template-columns: 1fr;
+  }
+  .spec-grid-wrap{
+    grid-template-columns: 1fr;
+  }
+
+  .spec-card:nth-child(3){
+    grid-column: auto;
+    width: auto;
+    justify-self: stretch;
+  }
+  
+  .spec-wrap{
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
 }

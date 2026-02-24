@@ -15,18 +15,29 @@ const canvas = document.getElementById('waveform-canvas');
 const ctx = canvas.getContext('2d');
 
 const specWrap = document.getElementById('spec-wrap');
-const specApplyBtn = document.getElementById('spec-apply');
-const specSummary = document.getElementById('spec-summary');
-const specBox = document.getElementById('spec-box');
-const specImg = document.getElementById('spec-img');
+function getSpecUI(i) {
+  return {
+    i,
+    applyBtn: document.getElementById(`spec-apply-${i}`),
+    summary: document.getElementById(`spec-summary-${i}`),
+    box: document.getElementById(`spec-box-${i}`),
+    img: document.getElementById(`spec-img-${i}`),
 
-const winSamp = document.getElementById('win-samp');
-const winSec  = document.getElementById('win-sec');
-const hopSamp = document.getElementById('hop-samp');
-const hopSec  = document.getElementById('hop-sec');
-const hopOv   = document.getElementById('hop-ov');
-const nfftSamp = document.getElementById('nfft-samp');
-const nfftSame = document.getElementById('nfft-same');
+    winSamp: document.getElementById(`win-samp-${i}`),
+    winSec:  document.getElementById(`win-sec-${i}`),
+    hopSamp: document.getElementById(`hop-samp-${i}`),
+    hopSec:  document.getElementById(`hop-sec-${i}`),
+    hopOv:   document.getElementById(`hop-ov-${i}`),
+    nfftSamp: document.getElementById(`nfft-samp-${i}`),
+    nfftSame: document.getElementById(`nfft-same-${i}`),
+  };
+}
+
+const SPEC_UIS = [getSpecUI(1), getSpecUI(2), getSpecUI(3)];
+
+window.addEventListener('error', (e) => {
+  console.error('JS ERROR:', e.error || e.message);
+});
 
 let audioCtx = null;
 
@@ -49,7 +60,11 @@ let currentAudioName = null;   // string
 
 // Only update spectrogram when "Enter" is pressed.
 // These are the last successfully-applied params (the ones that match the currently shown spectrogram).
-let appliedSpec = { win: 512, hop: 256, nfft: 512, overlapPct: 50, sr: 16000 };
+let appliedSpecs = {
+  1: { win: 512, hop: 256, nfft: 512, overlapPct: 50, sr: 16000 },
+  2: { win: 1024, hop: 256, nfft: 1024, overlapPct: 75, sr: 16000 },
+  3: { win: 256, hop: 128, nfft: 256, overlapPct: 50, sr: 16000 },
+};
 
 function toast(msg) {
   toastEl.textContent = msg;
@@ -288,6 +303,7 @@ function drawWaveformFromBuffer(buffer) {
 }
 
 function setSpecUIVisible(isVisible) {
+  if (!specWrap) return;
   if (isVisible) specWrap.classList.remove('is-hidden');
   else specWrap.classList.add('is-hidden');
 }
@@ -366,19 +382,31 @@ function updateAppliedSummary(p) {
 }
 
 async function requestSpectrogram(params) {
-  if (!currentAudioBlob) throw new Error('No audio blob available');
+  if (!currentAudioName) throw new Error('No library audio selected');
   if (!playBuffer) throw new Error('No audio loaded');
 
-  const form = new FormData();
-  form.append('audio', currentAudioBlob, currentAudioName || 'audio.wav');
-  form.append('sr', String(playBuffer.sampleRate));
-  form.append('win', String(params.win));
-  form.append('hop', String(params.hop));
-  form.append('nfft', String(params.nfft));
+  const payload = {
+    audio_name: currentAudioName,          // ex: "woman-speech.wav"
+    sr: playBuffer.sampleRate,             // sample rate actuel (après resampling frontend)
+    win_sec: params.winSec,                // en secondes
+    hop_sec: params.hopSec,                // en secondes
+    nfft: params.nfft                      // en samples
+  };
 
-  // Option A backend endpoint (you'll implement later)
-  const res = await fetch('/api/spectrogram', { method: 'POST', body: form });
-  if (!res.ok) throw new Error(`Backend error ${res.status}`);
+  const res = await fetch('/api/spectrogram', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    let msg = `Backend error ${res.status}`;
+    try {
+      const err = await res.json();
+      if (err && err.error) msg = err.error;
+    } catch {}
+    throw new Error(msg);
+  }
 
   const blob = await res.blob();
   if (!blob.type.startsWith('image/')) throw new Error('Expected an image response');
@@ -386,77 +414,155 @@ async function requestSpectrogram(params) {
   return blob;
 }
 
-async function applySpectrogram() {
+function specNormalize(ui) {
+  const sr = playBuffer ? playBuffer.sampleRate : parseInt(srInput.value, 10) || 16000;
+
+  let w = parseInt(ui.winSamp.value, 10);
+  let h = parseInt(ui.hopSamp.value, 10);
+  let n = parseInt(ui.nfftSamp.value, 10);
+
+  if (!Number.isFinite(w) || w < 1) w = 1;
+  if (!Number.isFinite(h) || h < 1) h = 1;
+  if (!Number.isFinite(n) || n < 1) n = 1;
+
+  ui.winSamp.value = String(w);
+  ui.hopSamp.value = String(h);
+  if (ui.nfftSame.checked) {
+    ui.nfftSamp.value = String(w);
+    n = w;
+  } else {
+    ui.nfftSamp.value = String(n);
+  }
+
+  ui.winSec.value = ((1000 * w) / sr).toFixed(1).replace(/\.0$/, '');
+  ui.hopSec.value = ((1000 * h) / sr).toFixed(1).replace(/\.0$/, '');
+
+  const ov = w > 0 ? (100 * (1 - h / w)) : 0;
+  ui.hopOv.value = String(Math.max(0, Math.min(99.9, ov)).toFixed(1).replace(/\.0$/, ''));
+}
+
+function specSyncSamplesFromSeconds(ui) {
+  const sr = playBuffer ? playBuffer.sampleRate : parseInt(srInput.value, 10) || 16000;
+
+  let wMs = parseFloat(ui.winSec.value);
+  let hMs = parseFloat(ui.hopSec.value);
+  if (!Number.isFinite(wMs) || wMs <= 0) wMs = 1000 / sr;
+  if (!Number.isFinite(hMs) || hMs <= 0) hMs = 1000 / sr;
+  
+  ui.winSamp.value = String(Math.max(1, Math.round((wMs / 1000) * sr)));
+  ui.hopSamp.value = String(Math.max(1, Math.round((hMs / 1000) * sr)));
+
+  if (ui.nfftSame.checked) ui.nfftSamp.value = ui.winSamp.value;
+  specNormalize(ui);
+}
+
+function specSyncSecondsFromSamples(ui) {
+  specNormalize(ui);
+}
+
+function specApplyOverlapToHop(ui) {
+  let w = parseInt(ui.winSamp.value, 10);
+  if (!Number.isFinite(w) || w < 1) w = 1;
+
+  let ov = parseFloat(ui.hopOv.value);
+  if (!Number.isFinite(ov)) ov = 50;
+  ov = Math.max(0, Math.min(99.9, ov));
+  ui.hopOv.value = String(ov);
+
+  const h = Math.max(1, Math.round(w * (1 - ov / 100)));
+  ui.hopSamp.value = String(h);
+
+  specNormalize(ui);
+}
+
+function updateAppliedSummaryFor(ui, spec) {
+  ui.summary.textContent =
+    `Window: ${spec.win} | Hop size: ${spec.hop} (${Math.round(spec.overlapPct)}%) | NFFT: ${spec.nfft}`;
+}
+
+async function applySpectrogramFor(ui) {
   if (!playBuffer) return;
 
-  normalizeSpecInputs();
+  specNormalize(ui);
 
-  // Decide hop from overlap if the overlap field was the most recently edited.
-  // Draft behavior: if overlap field is focused when you press Enter, use it.
   const activeId = document.activeElement && document.activeElement.id;
+  if (activeId === `hop-ov-${ui.i}`) specApplyOverlapToHop(ui);
+  if (activeId === `win-sec-${ui.i}`) specSyncSamplesFromSeconds(ui);
+  if (activeId === `hop-sec-${ui.i}`) specSyncSamplesFromSeconds(ui);
 
-  if (activeId === 'hop-ov') applyOverlapToHop();
-  if (activeId === 'win-sec') syncSpecSamplesFromSeconds();
-  if (activeId === 'hop-sec') syncSpecSamplesFromSeconds();
+  specNormalize(ui);
 
-  normalizeSpecInputs();
+  const w = parseInt(ui.winSamp.value, 10);
+  const h = parseInt(ui.hopSamp.value, 10);
+  let n = parseInt(ui.nfftSamp.value, 10);
 
-  const w = parseInt(winSamp.value, 10);
-  const h = parseInt(hopSamp.value, 10);
-  let n = parseInt(nfftSamp.value, 10);
+  if (ui.nfftSame.checked) n = w;
 
-  if (nfftSame.checked) n = w;
-
-  // Minimal validation (backend should validate too)
   if (h <= 0 || w <= 0 || n <= 0) { toast('Invalid STFT parameters'); return; }
   if (h > w) { toast('Hop size must be <= window'); return; }
   if (n < w) { toast('NFFT must be >= window'); return; }
 
-  // Only update the displayed spectrogram after we successfully get an image
   try {
-    specApplyBtn.disabled = true;
-    specApplyBtn.textContent = '...';
+    ui.applyBtn.disabled = true;
+    ui.applyBtn.textContent = '...';
 
-    const imgBlob = await requestSpectrogram({ win: w, hop: h, nfft: n });
+    const imgBlob = await requestSpectrogram({
+      winSec: parseFloat(ui.winSec.value) / 1000,
+      hopSec: parseFloat(ui.hopSec.value) / 1000,
+      nfft: n
+    });
 
-    // Swap image (keep old URL to revoke)
-    const oldUrl = specImg.dataset.url;
+    const oldUrl = ui.img.dataset.url;
     const url = URL.createObjectURL(imgBlob);
-    specImg.src = url;
-    specImg.dataset.url = url;
+
+    ui.img.src = url;
+    ui.img.dataset.url = url;
+
     if (oldUrl) URL.revokeObjectURL(oldUrl);
 
-    specBox.classList.remove('is-hidden');
-    appliedSpec = { win: w, hop: h, nfft: n, overlapPct: parseFloat(hopOv.value), sr: playBuffer.sampleRate };
-    updateAppliedSummary(appliedSpec);
+    ui.box.classList.remove('is-hidden');
+
+    appliedSpecs[ui.i] = {
+      win: w,
+      hop: h,
+      nfft: n,
+      overlapPct: parseFloat(ui.hopOv.value),
+      sr: playBuffer.sampleRate
+    };
+    updateAppliedSummaryFor(ui, appliedSpecs[ui.i]);
+
   } catch (e) {
     console.error(e);
-    toast('Spectrogram backend not available');
-    // keep current spectrogram + summary (stock behavior)
+    toast(e.message || 'Spectrogram backend not available');
   } finally {
-    specApplyBtn.disabled = false;
-    specApplyBtn.textContent = 'Enter';
+    ui.applyBtn.disabled = false;
+    ui.applyBtn.textContent = 'Enter';
   }
 }
 
-specApplyBtn.addEventListener('click', applySpectrogram);
+for (const ui of SPEC_UIS) {
+  ui.applyBtn.addEventListener('click', () => applySpectrogramFor(ui));
 
-[winSamp, winSec, hopSamp, hopSec, hopOv, nfftSamp].forEach(el => {
-  el.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      applySpectrogram();
-    }
+  [ui.winSamp, ui.winSec, ui.hopSamp, ui.hopSec, ui.hopOv, ui.nfftSamp].forEach(el => {
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applySpectrogramFor(ui);
+      }
+    });
   });
-});
 
-winSamp.addEventListener('input', () => { if (nfftSame.checked) nfftSamp.value = winSamp.value; syncSpecSecondsFromSamples(); });
-hopSamp.addEventListener('input', () => syncSpecSecondsFromSamples());
-winSec.addEventListener('input', () => syncSpecSamplesFromSeconds());
-hopSec.addEventListener('input', () => syncSpecSamplesFromSeconds());
-hopOv.addEventListener('input', () => applyOverlapToHop());
+  ui.winSamp.addEventListener('input', () => {
+    if (ui.nfftSame.checked) ui.nfftSamp.value = ui.winSamp.value;
+    specSyncSecondsFromSamples(ui);
+  });
 
-nfftSame.addEventListener('change', () => normalizeSpecInputs());
+  ui.hopSamp.addEventListener('input', () => specSyncSecondsFromSamples(ui));
+  ui.winSec.addEventListener('input', () => specSyncSamplesFromSeconds(ui));
+  ui.hopSec.addEventListener('input', () => specSyncSamplesFromSeconds(ui));
+  ui.hopOv.addEventListener('input', () => specApplyOverlapToHop(ui));
+  ui.nfftSame.addEventListener('change', () => specNormalize(ui));
+}
 
 /* -------- Sample rate change -------- */
 async function applySampleRate(requested) {
@@ -501,7 +607,7 @@ async function applySampleRate(requested) {
 
   // Keep UI in sync
   setSpecUIVisible(true);
-  syncSpecSecondsFromSamples();
+  for (const ui of SPEC_UIS) specSyncSecondsFromSamples(ui);
 }
 
 /* -------- Loading examples -------- */
@@ -550,8 +656,11 @@ async function loadExample(btn) {
 
   // show spectrogram controls after audio load
   setSpecUIVisible(true);
-  normalizeSpecInputs();
-  updateAppliedSummary(appliedSpec);
+
+  for (const ui of SPEC_UIS) {
+    specNormalize(ui);
+    updateAppliedSummaryFor(ui, appliedSpecs[ui.i]);
+  }
 
   closeLibrary();
 }
@@ -566,7 +675,16 @@ libraryList.addEventListener('click', async (e) => {
     console.error(err);
     waveformBox.classList.add('is-hidden');
     specWrap.classList.add('is-hidden');
-    specBox.classList.add('is-hidden');
+    for (const ui of SPEC_UIS) ui.box.classList.add('is-hidden');
+
+    for (const ui of SPEC_UIS) {
+      const oldUrl = ui.img?.dataset?.url;
+      if (oldUrl) URL.revokeObjectURL(oldUrl);
+      if (ui.img) {
+        ui.img.removeAttribute('src');
+        delete ui.img.dataset.url;
+      }
+    }
 
     originalBuffer = null;
     playBuffer = null;
