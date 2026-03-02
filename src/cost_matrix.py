@@ -1,4 +1,29 @@
 import numpy as np
+from scipy.spatial.distance import cdist
+
+def sq_cost_matrix(S1, S2, *, norm='max'):
+    """
+    Squared Euclidean cost matrix between supports S1 and S2.
+
+    While in the paper we defined the cost using the sample rate (see eq. 20), in practice we used normalized supports (see utils.time_freq_support) and compute cost between normalized indices.
+
+    Args:
+        S1 (np.ndarray, (n_pts1, ndim)) : Support 1.
+        S2 (np.ndarray, (n_pts2, ndim)) : Support 2.
+        norm (string)                   : Fit matrix values between 0 and 1.
+
+    Returns:
+        C (np.ndarray, (n_pts1, n_pts2) : Cost matrix between supports S1 and S2.
+    """
+    assert S1.ndim == S2.ndim, "Supports must be of same dimension."
+    if S1.ndim == 1:
+        S1 = np.expand_dims(S1.copy(), 1)
+        S2 = np.expand_dims(S2.copy(), 1)
+
+    C = cdist(S1, S2, metric='sqeuclidean')
+    if norm == 'max':
+        C = C / C.max()
+    return C
 
 def cost_matrix_freq_overlap(T_bins1, T_bins2, F, window_size_1, window_size_2, norm=True, hop_size_1=None, hop_size_2=None):
     if norm:
