@@ -57,3 +57,33 @@ def time_freq_support(f_bins, t_frames, *, norm=False):
         support = (support - support[0]) / support[-1]
 
     return support, idx_support
+
+def idx_at_value(value, array):
+    """
+        Return index of closest value inside array.
+
+        Args:
+            value: value to find.
+            array (np.ndarray): array of values
+
+        Returns:
+            index of closest value (0 or array.size - 1) if value outside bounds of array or None.
+    """
+    if value is None:
+        return array.size - 1
+    return np.abs(array - value).argmin()
+
+def kullback_leibler(a, b, thr=1e-20):
+    """
+        Kullback-Leibler divergene.
+
+        Args:
+            a (np.ndarray): input vector.
+            b (np.ndarray): input vector.
+            thr (double):   to avoid log(0) or log(1 / 0)
+        
+        Returns:
+            KL(a, b)
+    """
+    kl_div = a * np.log((a + thr) / (b + thr)) - a + b
+    return kl_div.sum()
