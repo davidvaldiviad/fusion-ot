@@ -40,23 +40,20 @@ def time_freq_support(f_bins, t_frames, *, norm=False):
 
         Returns:
             support     (np.ndarray): TF grid.
-            idx_support (np.ndarray): 1D-2D index mapping ordered in a column-wise vectorization (see eq. 15).
 
     """
     support = np.zeros((f_bins.size * t_frames.size, 2))
-    idx_support = np.zeros_like(support)
 
     index = 0
     for t in t_frames:
         for f in f_bins:
             support[index] = [t, f]
-            idx_support[index] = [t, f]
             index += 1
 
     if norm:
         support = (support - support[0]) / support[-1]
 
-    return support, idx_support
+    return support
 
 def idx_at_value(value, array):
     """
@@ -87,3 +84,44 @@ def kullback_leibler(a, b, thr=1e-20):
     """
     kl_div = a * np.log((a + thr) / (b + thr)) - a + b
     return kl_div.sum()
+
+def mel(f):
+    """
+        Mel scale O'Shaughnessy's formula (eq. 43).
+        
+        Args:
+            f (double): Frequency (in Hz).
+
+        Returns:
+            Mel associated to f.
+    """
+    return 2595 * np.log10(1 + f / 700)
+
+def imel(m):
+    """
+        Inverse-mel scale O'Shaughnessy's formula (eq. 43).
+        
+        Args:
+            m (double): Mels.
+
+        Returns:
+            Frequency associated to m.
+    """
+    return 700 * (10 ** (m / 2595) - 1)
+
+def mel_frequency_bins(n_bins, sr):
+    """
+        Compute mel frequency scale as explained in Section V-D.
+
+        Args:
+            n_bins (int): number of mel bins.
+            sr (int)    : sample rate (in Hz).
+
+        Returns:
+            Mel scale with n_bins.
+    """
+    mr = mel(sr / 2)
+    mels = np.linspace(0, mr, n_bins)
+    m_bins = imel(mels)
+
+    return m_bins

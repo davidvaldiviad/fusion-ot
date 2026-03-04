@@ -189,8 +189,8 @@ def uot_barycenter(x1,
         plan_1k1 = u1[rows1] * plan_1k1 * D1 * v1[cols1]
         plan_2k1 = u2[rows2] * plan_2k1 * D2 * v2[cols2]
 
-        l1 = uot_loss(c1, plan_1k1, eta, x1, x, plan_rows=rows1, plan_cols=cols1)
-        l2 = uot_loss(c2, plan_2k1, eta, x2, x, plan_rows=rows2, plan_cols=cols2)
+        l1 = uot_loss(c1, plan_1k1, eta, x1, x, rows=rows1, cols=cols1)
+        l2 = uot_loss(c2, plan_2k1, eta, x2, x, rows=rows2, cols=cols2)
         loss.append((1 - alpha) * l1 + alpha * l2)
 
         sum_col_1 = np.zeros_like(x)
@@ -226,13 +226,35 @@ def uot_loss(c,
              a, 
              b, 
              *, 
-             plan_rows=None, 
-             plan_cols=None):
-    sum_row_plan = np.zeros_like(a)
-    np.add.at(sum_row_plan, plan_rows, plan)
+             rows=None, 
+             cols=None):
+    """
+        UOT Barycenter objective function (see eq. 34).
+        It uses the vectorized forms of the cost matrices and plans. 
+        To compute the sums of the rows and columns of the plans, i.e. T1_I and T^\top_J
+        we require the indices of the plans' rows and cols
+        i.e. plan[k] = T[i, j] with T the transport plan, i = rows[k], j = cols[k].
 
+        Args:
+            c (np.ndarray)    : vectorized cost matrix.
+            plan (np.ndarray) : vectorized transport plan.
+            eta (double, > 0) : UOT parameter.
+            a (np.ndarray)    : weights a.
+            b (np.ndarray)    : weights b.
+            rows (np.ndarray) : plan rows' indices.
+            cols (np.ndarray) : plan cols' indices.
+
+        Returns:
+            Objective evaluated at the input parameters.
+
+    """
+    # compute T1_I
+    sum_row_plan = np.zeros_like(a)
+    np.add.at(sum_row_plan, rows, plan)
+
+    # compute T^\top 1_J
     sum_col_plan = np.zeros_like(b)
-    np.add.at(sum_col_plan, plan_cols, plan)
+    np.add.at(sum_col_plan, cols, plan)
 
     P = (c * plan).sum()
     F1 = eta * kullback_leibler(sum_row_plan, a)
