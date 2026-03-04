@@ -113,7 +113,7 @@ def uot_barycenter(x1,
                    return_loss=False,
                    return_diff=False,
                    thr=1e-4,
-                   verbose=True,
+                   verbose=False,
                    eps=1e-16):
     """
     Computes UOT barycenter between two distributions. For more details, check IV. Algorithm.

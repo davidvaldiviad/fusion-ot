@@ -6,13 +6,15 @@ In this repo you will find the implementation of an unbalanced optimal transport
 
 In this repo you will find:
 
+* `tutorial.ipynb`: notebook tutorial showing how to compute super-resolutions spectrograms.
 * `paper_figures.ipynb`: notebook to reproduce the figures of the paper.
 * `data/`: folder containing data, e.g. the Euclidean OT barycenter used for Fig. 3 (which is slow to compute).
 * `example_sounds/`: sounds used for the paper. Sources:
 
-    * `bass-notes.wav`: https://freesound.org/people/2opremio/sounds/255833/ (with manually included silences between notes.)
-    * `ring-necked-dova.wav`: https://xeno-canto.org/1059259 (slice from 1.6s to 2.8s)
-    * `woman-speech.wav`: https://keithito.com/LJ-Speech-Dataset/ (original track name: `LJ001-0001.wav`, slice from 2.4s to 4.02s)
+    * `bass_notes.wav`: https://freesound.org/people/2opremio/sounds/255833/ (with manually included silences between notes.)
+    * `ring_necked_dove.wav`: https://xeno-canto.org/1059259 (slice from 1.6s to 2.8s)
+    * `woman_speech.wav`: https://keithito.com/LJ-Speech-Dataset/ (original track name: `LJ001-0001.wav`, slice from 2.4s to 4.02s)
+    * `man_speech.wav`: https://www.spsc.tugraz.at/databases-and-tools/ptdb-tug-pitch-tracking-database-from-graz-university-of-technology.html (ID: M02_si746, slice from 2.5s to 6s)
 * `src/`: folder containing code (more info below).
 
 Some results:
@@ -42,7 +44,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 `````
 
-3. Finally, install the dependencies:
+3. Finally, **install the dependencies**:
 
 ````
 pip install -r requirements.txt
