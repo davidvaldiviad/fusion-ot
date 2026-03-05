@@ -64,7 +64,7 @@ class Spectrogram:
 
         return self.stft_obj.stft(self.signal, p0=p0)
     
-    def power_spectrogram(self, p0=0):
+    def spectrogram(self, p0=0):
         """
             Computes spectrogram of signal, defined as power of STFT.
 

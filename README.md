@@ -4,7 +4,7 @@ Companion code for the paper Enhancing time-frequency resolution via optimal tra
 
 In this repo you will find the implementation of an unbalanced optimal transport (UOT) algorithm to enhance the resolution of spectrograms. Starting from the time-domain signal, we first compute two spectrograms using two different window lengths. We then compute the barycenter distribution using UOT.
 
-In this repo you will find:
+Repo structure:
 
 * `tutorial.ipynb`: notebook tutorial showing how to compute super-resolutions spectrograms.
 * `paper_figures.ipynb`: notebook to reproduce the figures of the paper.
