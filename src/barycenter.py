@@ -112,6 +112,7 @@ def uot_barycenter(x1,
                    alpha=.5,
                    return_loss=False,
                    return_diff=False,
+                   return_iter=False,
                    thr=1e-4,
                    verbose=True,
                    eps=1e-16):
@@ -135,6 +136,7 @@ def uot_barycenter(x1,
         alpha (double, [0, 1])         : interpolation parameter
         return_loss                    : return loss (1 - alpha)OT(x1, x) + alpha OT(x2, x)
         return_diff                    : return iterate difference: ||x_k+1 - x_k||**2 / ||x_0||**2
+        return_iter                    : return number of iterations until convergence
         thr (double)                   : convergence criteria (for loss)
         verbose (bool)                 : prints info
         eps (double)                   : to avoid division by zero.
@@ -146,13 +148,16 @@ def uot_barycenter(x1,
     """
 
     x0 = np.ones(bary_size)
+    # x0 = np.abs(np.random.randn(bary_size)) + 1e-5
     x0 /= x0.sum()
     x0_norm = (x0**2).sum()
 
     plan_10 = np.ones_like(c1)
-    # plan_10 /= plan_10.sum()
+    # plan_10 = np.abs(np.random.randn(c1.size)).reshape(c1.shape)  + 1e-5
+    plan_10 /= plan_10.sum()
     plan_20 = np.ones_like(c2)
-    # plan_20 /= plan_20.sum()
+    # plan_20 = np.abs(np.random.randn(c2.size)).reshape(c2.shape)  + 1e-5
+    plan_20 /= plan_20.sum()
 
     D1 = np.exp(-c1/eta/2)
     D2 = np.exp(-c2/eta/2)
@@ -208,7 +213,7 @@ def uot_barycenter(x1,
     if verbose:
         print(f"Convergence attained after {k} iterations.")
     
-    if not return_loss and not return_diff:
+    if not return_loss and not return_diff and not return_iter:
         return x
     
     res = [x]
@@ -217,6 +222,8 @@ def uot_barycenter(x1,
         res = *res, loss
     if return_diff:
         res = *res, diff
+    if return_iter:
+        res = *res, k
 
     return res
 

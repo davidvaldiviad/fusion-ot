@@ -109,7 +109,7 @@ def display_spectrogram(spec,
     ax.set_ylabel('Frequency (Hz)')
     ax.set_title(title)
 
-def display_support(supp, *, ax=None, title=None, xlabel='Time (s)', ylabel='Frequency (Hz)'):
+def display_support(supp, *, ax=None, title=None, xlabel='Time (s)', ylabel='Frequency (Hz)', add_point=False, point_pos=(1, 1), point_label=''):
     """
         Display time-frequency grid.
 
@@ -145,30 +145,11 @@ def display_support(supp, *, ax=None, title=None, xlabel='Time (s)', ylabel='Fre
 
     ax.xaxis.set_tick_params(width=0) # remove extra ticks
     ax.yaxis.set_tick_params(width=0) # remove extra ticks
-    
-def display_cost_matrix(C, *, ax=None, title=None, fit=False):
-    """
-        Display cost matrix. Black pixels correspond to infinite values.
 
-        Args:
-            C (np.ndarray): cost matrix.
-            ax (matplotlib.Axes): Axes object in which to display spectrogram.
-            title (string): title for plot.
-            fit (bool): set to True so that cost matrices appear to be of same shape.
-    """
-    if ax is None:
-        ax = new_axes()
-    
-    cmap = cm.get_cmap('viridis')
-    cmap.set_bad('black')
-
-    if fit:
-        ax.imshow(C, cmap=cmap, aspect='auto', interpolation='none')
-    else:
-        ax.imshow(C, cmap=cmap)
-
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    ax.set_title(title)
+    if add_point:
+        ax.text(
+            point_pos[0], point_pos[1], point_label,
+            transform=ax.transAxes,
+            ha="left", va="top",
+        )
     

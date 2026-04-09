@@ -64,11 +64,25 @@ def idx_at_value(value, array):
             array (np.ndarray): array of values
 
         Returns:
-            index of closest value (0 or array.size - 1) if value outside bounds of array or None.
+            index of closest value, 0 or array.size - 1 if value outside bounds of array or None.
     """
     if value is None:
         return array.size - 1
     return np.abs(array - value).argmin()
+
+def closest_neighbor(value, array):
+    """
+        Return closest value inside array.
+
+        Args:
+            value: value to find.
+            array (np.ndarray): array of values
+
+        Returns:
+            closest value, 0 or array.size - 1 if value outside bounds of array or None.
+    """   
+    return array[idx_at_value(value, array)]
+
 
 def kullback_leibler(a, b, thr=1e-20):
     """
