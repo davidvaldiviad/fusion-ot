@@ -6,15 +6,16 @@ In this repo you will find the implementation of an unbalanced optimal transport
 
 Repo structure:
 
-* `tutorial.ipynb`: notebook tutorial showing how to compute super-resolutions spectrograms.
+* `experiments.ipynb`: notebook to reproduce the experiments described in the paper.
 * `paper_figures.ipynb`: notebook to reproduce the figures of the paper.
-* `data/`: folder containing data, e.g. the Euclidean OT barycenter used for Fig. 3 (which is slow to compute).
+* `tutorial.ipynb`: notebook tutorial showing how to compute super-resolutions spectrograms.
+* `data/`: folder containing data, i.e. experiment results and the Euclidean OT barycenter used for Fig. 3 (which is slow to compute).
 * `example_sounds/`: sounds used for the paper. Sources:
 
     * `bass_notes.wav`: https://freesound.org/people/2opremio/sounds/255833/ (with manually included silences between notes.)
-    * `ring_necked_dove.wav`: https://xeno-canto.org/1059259 (slice from 1.6s to 2.8s)
-    * `woman_speech.wav`: https://keithito.com/LJ-Speech-Dataset/ (original track name: `LJ001-0001.wav`, slice from 2.4s to 4.02s)
-    * `man_speech.wav`: https://www.spsc.tugraz.at/databases-and-tools/ptdb-tug-pitch-tracking-database-from-graz-university-of-technology.html (ID: M02_si746, slice from 2.5s to 6s)
+    * `example_speech.wav`: https://www.spsc.tugraz.at/databases-and-tools/ptdb-tug-pitch-tracking-database-from-graz-university-of-technology.html (ID: M04_si1066)
+    * `man_speech.wav`: (same link as above) (ID: M02_si746, slice from 2.5s to 6s)
+    * `PTDB-TUG`: (same link as above) folder containing selection of 100 speech samples for experiments.
 * `src/`: folder containing code (more info below).
 
 Some results:
@@ -57,5 +58,6 @@ The different functions used to compute barycenters and display the results are 
 * `barycenter.py`: compute OT and UOT barycenters.
 * `cost_matrix.py`: compute the different cost matrices used throughout the paper
 * `display.py`: utility functions to display figures.
+* `experiment_metrics.py`: error metrics and utilitary functions.
 * `spectrogram.py`: contains Spectrogram class used in the code.
 * `utils.py`: accessory functions.
