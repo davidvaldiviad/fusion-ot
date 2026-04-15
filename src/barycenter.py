@@ -148,16 +148,10 @@ def uot_barycenter(x1,
     """
 
     x0 = np.ones(bary_size)
-    # x0 = np.abs(np.random.randn(bary_size)) + 1e-5
-    x0 /= x0.sum()
     x0_norm = (x0**2).sum()
 
     plan_10 = np.ones_like(c1)
-    # plan_10 = np.abs(np.random.randn(c1.size)).reshape(c1.shape)  + 1e-5
-    plan_10 /= plan_10.sum()
     plan_20 = np.ones_like(c2)
-    # plan_20 = np.abs(np.random.randn(c2.size)).reshape(c2.shape)  + 1e-5
-    plan_20 /= plan_20.sum()
 
     D1 = np.exp(-c1/eta/2)
     D2 = np.exp(-c2/eta/2)
@@ -223,7 +217,7 @@ def uot_barycenter(x1,
     if return_diff:
         res = *res, diff
     if return_iter:
-        res = *res, k
+        res = *res, k + 1
 
     return res
 
@@ -236,7 +230,7 @@ def uot_loss(c,
              rows=None, 
              cols=None):
     """
-        UOT Barycenter objective function (see eq. 34).
+        UOT Barycenter objective function (see eq. 32).
         It uses the vectorized forms of the cost matrices and plans. 
         To compute the sums of the rows and columns of the plans, i.e. T1_I and T^\top_J
         we require the indices of the plans' rows and cols

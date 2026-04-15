@@ -2,11 +2,9 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from .utils import *
 
-def sq_cost_matrix(S1, S2, *, norm=True):
+def sq_cost_matrix(f_bins_1, t_frames_1, f_bins_2, t_frames_2, *, norm=True):
     """
-    Squared Euclidean cost matrix between supports S1 and S2.
-
-    While in the paper we defined the cost using the sample rate (see eq. 20), in practice we used normalized supports (see utils.time_freq_support) and compute cost between normalized indices.
+    Squared Euclidean cost matrix between supports S1 and S2 (eq. 20, 21)
 
     Args:
         S1 (np.ndarray, (n_pts1, ndim)) : Support 1.
@@ -16,11 +14,9 @@ def sq_cost_matrix(S1, S2, *, norm=True):
     Returns:
         C (np.ndarray, (n_pts1, n_pts2) : Cost matrix between supports S1 and S2.
     """
-    assert S1.ndim == S2.ndim, "Supports must be of same dimension."
-    if S1.ndim == 1:
-        S1 = np.expand_dims(S1.copy(), 1)
-        S2 = np.expand_dims(S2.copy(), 1)
-
+    S1 = time_freq_support(f_bins_1, t_frames_1, norm=1)
+    S2 = time_freq_support(f_bins_2, t_frames_2, norm=1)
+    
     C = cdist(S1, S2, metric='sqeuclidean')
     
     if norm:
@@ -30,7 +26,7 @@ def sq_cost_matrix(S1, S2, *, norm=True):
 
 def cost_matrix_horizontal(S1, S, norm=True):
     """
-        Cost matrix that restricts movement to the time axis, i.e. horizontally (see eq. 21).
+        Cost matrix that restricts movement to the time axis, i.e. horizontally (see eq. 25).
         Infinite values are set to np.nan
 
         Args:
@@ -68,7 +64,7 @@ def cost_matrix_horizontal(S1, S, norm=True):
 
 def cost_matrix_vertical(S2, S, norm=True):
     """
-        Cost matrix that restricts movement to the frequency axis, i.e. vertically (see eq. 22).
+        Cost matrix that restricts movement to the frequency axis, i.e. vertically (see eq. 26).
         Infinite values are set to np.nan
 
         Args:
@@ -104,9 +100,9 @@ def cost_matrix_vertical(S2, S, norm=True):
     
     return C
 
-def cost_matrix_horizontal_overlap(S1, S, window_size_1, window_size_2, hop_size_1=None, hop_size_2=None, norm=True):
+def cost_matrix_horizontal_overlap(f_bins_1, t_frames_1, t_frames_2, window_size_1, window_size_2, hop_size_1=None, hop_size_2=None, norm=True):
     """
-        Cost matrix that restricts movement to the temporal axis considering temporal window overlap (see eq. 23).
+        Cost matrix that restricts movement to the temporal axis considering temporal window overlap (see eq. 27).
         It is optimized to return a vector with finite entries only.
         To handle operations, it also returns a column and row index arrays.
         This leads to vectorized cost c[k] = C[i, j] with C the cost matrix, i = rows[k], j = cols[k].
@@ -127,9 +123,6 @@ def cost_matrix_horizontal_overlap(S1, S, window_size_1, window_size_2, hop_size
         hop_size_1 = window_size_1 / 2
     if hop_size_2 is None:
         hop_size_2 = window_size_2 / 2
-
-    t_frames_1, f_bins_1 = np.unique(S1[:, 0]), np.unique(S1[:, 1])
-    t_frames_2           = np.unique(S[:, 0])
 
     M1, N1 = f_bins_1.size, t_frames_1.size
     N2 = t_frames_2.size
@@ -169,9 +162,9 @@ def cost_matrix_horizontal_overlap(S1, S, window_size_1, window_size_2, hop_size
 
     return np.array(c), np.array(rows), np.array(cols)
 
-def cost_matrix_vertical_overlap(S2, S, window_size_1, window_size_2, norm=True):
+def cost_matrix_vertical_overlap(f_bins_1, f_bins_2, t_frames_2, window_size_1, window_size_2, norm=True):
     """
-        Cost matrix that restricts movement to the frequency axis considering frequency window overlap (see eq. 24).
+        Cost matrix that restricts movement to the frequency axis considering frequency window overlap (see eq. 28).
         It is optimized to return a vector with finite entries only.
         To handle operations, it also returns a column and row index arrays.
         This leads to vectorized cost c[k] = C[i, j] with C the cost matrix, i = rows[k], j = cols[k].
@@ -186,9 +179,6 @@ def cost_matrix_vertical_overlap(S2, S, window_size_1, window_size_2, norm=True)
         Returns:
             C (np.ndarray) : Vectorized overlap cost matrix between supports S2 and S.
     """
-    t_frames_2, f_bins_2 = np.unique(S2[:, 0]), np.unique(S2[:, 1])
-    f_bins_1             = np.unique(S[:, 1])
-
     M1 = f_bins_1.size
     M2, N2 = f_bins_2.size, t_frames_2.size
 
@@ -229,9 +219,9 @@ def cost_matrix_vertical_overlap(S2, S, window_size_1, window_size_2, norm=True)
 
     return c, rows, cols
 
-def cost_matrix_horizontal_overlap_mel(S1, S, window_size_1, window_size_2, sr, hop_size_1=None, hop_size_2=None, norm=True):
+def cost_matrix_horizontal_overlap_mel(f_bins_1, m_bins, t_frames_1, t_frames_2, window_size_1, window_size_2, sr, hop_size_1=None, hop_size_2=None, norm=True):
     """
-        Similar as `cost_matrix_horizontal_overlap` except that frequency bins of S are on a mel scale, see eq. 46.
+        Similar as `cost_matrix_horizontal_overlap` except that frequency bins of S are on a mel scale, see eq. 60.
         This matrix allows for a small 2D movement.
 
         Args:
@@ -251,9 +241,6 @@ def cost_matrix_horizontal_overlap_mel(S1, S, window_size_1, window_size_2, sr, 
         hop_size_1 = window_size_1 / 2
     if hop_size_2 is None:
         hop_size_2 = window_size_2 / 2
-
-    t_frames_1, f_bins_1 = np.unique(S1[:, 0]), np.unique(S1[:, 1])
-    t_frames_2, m_bins   = np.unique(S[:, 0]), np.unique(S[:, 1])
 
     M1, N1 = f_bins_1.size, t_frames_1.size
     M, N2  = m_bins.size, t_frames_2.size
@@ -281,8 +268,8 @@ def cost_matrix_horizontal_overlap_mel(S1, S, window_size_1, window_size_2, sr, 
             # Previously we replaced freq = f / M * sr
             # For mels we replace freq with 700 * (10^(m'/(M - 1) m_r / 2595) - 1) where m' is the index of the m'-th mel.
 
-            lb_log_arg = f / M1 * sr / 2 / 700 - 2 * sr / 700 * (1 / window_size_1 + 1 / window_size_2) + 1
-            ub_log_arg = f / M1 * sr / 2 / 700 + 2 * sr / 700 * (1 / window_size_1 + 1 / window_size_2) + 1
+            lb_log_arg = f / M1 * sr / 2 / 700 - 2 * sr / 700 * (1 / window_size_1 + 1 / window_size_1) + 1
+            ub_log_arg = f / M1 * sr / 2 / 700 + 2 * sr / 700 * (1 / window_size_1 + 1 / window_size_1) + 1
 
             lower_bound = np.log10(lb_log_arg) * 2595 * (M - 1) / mr
             upper_bound = np.log10(ub_log_arg) * 2595 * (M - 1) / mr
@@ -311,7 +298,7 @@ def cost_matrix_horizontal_overlap_mel(S1, S, window_size_1, window_size_2, sr, 
     return np.array(c), np.array(rows), np.array(cols)
 
 
-def cost_matrix_vertical_overlap_mel(S2, S, window_size_1, window_size_2, sr, norm=True):
+def cost_matrix_vertical_overlap_mel(m_bins, f_bins_2, t_frames_2, window_size_1, window_size_2, sr, norm=True):
     """
         Similar as `cost_matrix_vertical_overlap` except that frequency bins of S are on a mel scale.
 
@@ -329,9 +316,6 @@ def cost_matrix_vertical_overlap_mel(S2, S, window_size_1, window_size_2, sr, no
             C (np.ndarray) : Vectorized overlap cost matrix between supports S2 and S, on mel scale.
             
     """
-    t_frames_2, f_bins_2 = np.unique(S2[:, 0]), np.unique(S2[:, 1])
-    m_bins               = np.unique(S[:, 1])
-
     M = m_bins.size
     M2, N2 = f_bins_2.size, t_frames_2.size
 

@@ -63,8 +63,8 @@ def display_spectrogram(spec,
         spec (np.ndarray): Spectrogram.
         ax (matplotlib.Axes): Axes object in which to display spectrogram.
         title (string): title for plot.
-        f_bins (np.ndarray): frequency bins of spectrogram (see eq. 6).
-        t_frames (np.ndarray): time frames of spectrogram (see eq. 7)
+        f_bins (np.ndarray): frequency bins of spectrogram (see eq. 7).
+        t_frames (np.ndarray): time frames of spectrogram (see eq. 8)
         low_f (double): Remove frequencies below low_f (in Hz).
         high_f (double): Remove frequencies above high_f (in Hz).
         low_t (double): Remove frames below low_t (in s).

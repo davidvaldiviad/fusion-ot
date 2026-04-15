@@ -31,11 +31,11 @@ def generate_toy_signal(sr=1000):
 
 def time_freq_support(f_bins, t_frames, *, norm=False):
     """
-        Generate time-frequency grids as in eq. 8.
+        Generate time-frequency grids as in eq. 9.
 
         Args:
-            f_bins   (np.ndarray): Frequency bins (in Hz) (see eq. 6).
-            t_frames (np.ndarray): Time frames (in s) (see eq. 7).
+            f_bins   (np.ndarray): Frequency bins (in Hz) (see eq. 7).
+            t_frames (np.ndarray): Time frames (in s) (see eq. 8).
             norm     (bool): Normalize tf points so that each axis varies between 0 and 1.
 
         Returns:
@@ -101,7 +101,7 @@ def kullback_leibler(a, b, thr=1e-20):
 
 def mel(f):
     """
-        Mel scale O'Shaughnessy's formula (eq. 43).
+        Mel scale O'Shaughnessy's formula (eq. 54).
         
         Args:
             f (double): Frequency (in Hz).
@@ -113,7 +113,7 @@ def mel(f):
 
 def imel(m):
     """
-        Inverse-mel scale O'Shaughnessy's formula (eq. 43).
+        Inverse-mel scale O'Shaughnessy's formula (eq. 55).
         
         Args:
             m (double): Mels.

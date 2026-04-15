@@ -132,7 +132,7 @@ def error_frequency(X, f, delta_f, f_bins):
 
 def error_time(X, t_on, t_off, delta_t, t_bins):
     """
-        Error in time tolerance (see eq. 43).
+        Error in time tolerance (see eq. 44).
 
         Args:
             X (np.ndarray): power spectrogram.
@@ -146,7 +146,7 @@ def error_time(X, t_on, t_off, delta_t, t_bins):
 
 def error_overall(X, freqs, t_ons, t_offs, delta_f, delta_t, f_bins, t_bins):
     """
-        Overall time-frequency error (see eq. 46)
+        Overall time-frequency error (see eq. 47)
 
         Args:
             X (np.ndarray): power spectrogram.
@@ -169,3 +169,44 @@ def error_overall(X, freqs, t_ons, t_offs, delta_f, delta_t, f_bins, t_bins):
         keep |= f_mask[:, None] & t_mask[None, :]
 
     return X[~keep].sum() / X.sum()
+
+def error_harmonic(X, f0_track, f0_times, delta_f, f_bins, t_bins, f_max):
+    """
+       Harmonic concentration error (see eq. 50)
+
+       Args:
+            X (np.ndarray): power spectrogram.
+            f0_track (np.ndarray): pitch values provided by database (including 0 for unvoiced frames).
+            f0_times (np.ndarray): temporal samplings for the pitch values.
+            delta_f (double): tolerance in frequency (in Hz).
+            f_bins (np.ndarray): frequency bins of X.
+            t_bins (np.ndarray): time bins of X.
+            f_max (double): maximum frequency for harmonics.
+    """
+    voiced_times  = f0_times[f0_track > 0]
+    valid_pitches = f0_track[f0_track > 0]
+
+    score = []
+    for i in range(len(valid_pitches)):
+        f0 = closest_neighbor(valid_pitches[i], f_bins)
+        if f0 <= 0:
+            continue
+
+        n_harmonics = int(f_max // f0)
+        harmonic_freqs = np.zeros(n_harmonics)
+        for k in range(n_harmonics):
+            harmonic_freqs[k] = closest_neighbor((k + 1) * f0, f_bins)
+
+        keep = np.zeros(X.shape[0], dtype=bool)
+        for hf in harmonic_freqs:
+            keep |= np.abs(f_bins - hf) <= delta_f
+
+        t_idx = idx_at_value(voiced_times[i], t_bins)
+
+        denom = X[:, t_idx].sum()
+        if denom <= 0:
+            continue
+
+        score.append(X[~keep, t_idx].sum() / denom)
+
+    return np.mean(score)
