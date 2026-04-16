@@ -51,7 +51,7 @@ def time_freq_support(f_bins, t_frames, *, norm=False):
             index += 1
 
     if norm:
-        support = (support - support[0]) / support[-1]
+        support = normalize(support)
 
     return support
 
@@ -139,3 +139,13 @@ def mel_frequency_bins(n_bins, sr):
     m_bins = imel(mels)
 
     return m_bins
+
+def normalize(array):
+    """
+        Returns sorted array scaled between 0 and 1.
+
+        Args:
+            array (np.ndarray): array to normalize, sorted.
+    """
+
+    return (array - array[0]) / array[-1]

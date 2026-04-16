@@ -7,8 +7,10 @@ def sq_cost_matrix(f_bins_1, t_frames_1, f_bins_2, t_frames_2, *, norm=True):
     Squared Euclidean cost matrix between supports S1 and S2 (eq. 20, 21)
 
     Args:
-        S1 (np.ndarray, (n_pts1, ndim)) : Support 1.
-        S2 (np.ndarray, (n_pts2, ndim)) : Support 2.
+        f_bins_1 (np.ndarray)   : Frequency samplings of support 1.
+        t_frames_1 (np.ndarray) : Time samplings of support 1.
+        f_bins_2 (np.ndarray)   : Frequency samplings of support 2.
+        t_frames_2 (np.ndarray) : Time samplings of support 2.
         norm (bool)                     : Fit matrix values between 0 and 1.
 
     Returns:
@@ -24,27 +26,21 @@ def sq_cost_matrix(f_bins_1, t_frames_1, f_bins_2, t_frames_2, *, norm=True):
     
     return C
 
-def cost_matrix_horizontal(S1, S, norm=True):
+def cost_matrix_horizontal(f_bins_1, t_frames_1, t_frames_2, norm=True):
     """
         Cost matrix that restricts movement to the time axis, i.e. horizontally (see eq. 25).
         Infinite values are set to np.nan
 
         Args:
-            S1 (np.ndarray, (n_pts2, ndim)) : Support 1.
-            S  (np.ndarray, (n_pts2, ndim)) : Target support.
+            f_bins_1 (np.ndarray)   : Frequency samplings of support 1.
+            t_frames_1 (np.ndarray) : Time samplings of support 1.
+            t_frames_2 (np.ndarray) : Time samplings of support 2.
             norm (bool)                     : Fit matrix values between 0 and 1.
 
         Returns:
             C (np.ndarray, (n_pts1, n_pts) : Structured cost matrix between supports S1 and S.
     
     """
-    assert S1.ndim == S.ndim, "Supports must be of same dimension."
-    if S.ndim == 1:
-        S1 = np.expand_dims(S1.copy(), 1)
-        S = np.expand_dims(S.copy(), 1)
-
-    t_frames_1, f_bins_1 = np.unique(S1[:, 0]), np.unique(S1[:, 1])
-    t_frames_2           = np.unique(S[:, 0])
 
     M1, N1 = f_bins_1.size, t_frames_1.size
     N2 = t_frames_2.size
@@ -62,28 +58,21 @@ def cost_matrix_horizontal(S1, S, norm=True):
     
     return C
 
-def cost_matrix_vertical(S2, S, norm=True):
+def cost_matrix_vertical(f_bins_1, f_bins_2, t_frames_2, norm=True):
     """
         Cost matrix that restricts movement to the frequency axis, i.e. vertically (see eq. 26).
         Infinite values are set to np.nan
 
         Args:
-            S2 (np.ndarray, (n_pts2, ndim)) : Support 2.
-            S  (np.ndarray, (n_pts2, ndim)) : Target support.
+            f_bins_1 (np.ndarray)   : Frequency samplings of support 1.
+            f_bins_2 (np.ndarray)   : Frequency samplings of support 2.
+            t_frames_2 (np.ndarray) : Time samplings of support 2.
             norm (bool)                     : Fit matrix values between 0 and 1.
 
         Returns:
             C (np.ndarray, (n_pts2, n_pts) : Structured cost matrix between supports S2 and S.
     
     """
-    assert S2.ndim == S.ndim, "Supports must be of same dimension."
-    if S.ndim == 1:
-        S2 = np.expand_dims(S2.copy(), 1)
-        S = np.expand_dims(S.copy(), 1)
-
-    t_frames_2, f_bins_2 = np.unique(S2[:, 0]), np.unique(S2[:, 1])
-    f_bins_1             = np.unique(S[:, 0])
-
     M1 = f_bins_1.size
     M2, N2 = f_bins_2.size, t_frames_2.size
 
