@@ -1,6 +1,6 @@
 # Enhancing time-frequency resolution via optimal transport fusion of spectrograms
 
-Companion code for the paper Enhancing time-frequency resolution via optimal transport fusion of spectrograms, see [TODO: arxiv link].
+Companion code for the paper Enhancing time-frequency resolution via optimal transport fusion of spectrograms, see [arxiv preprint](https://arxiv.org/pdf/2604.15055).
 
 In this repo you will find the implementation of an unbalanced optimal transport (UOT) algorithm to enhance the resolution of spectrograms. Starting from the time-domain signal, we first compute two spectrograms using two different window lengths. We then compute the barycenter distribution using UOT.
 
